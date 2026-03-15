@@ -24,30 +24,28 @@ const STEPS = [
   { n: '04', title: 'В бой!', desc: 'Инструктаж, команды — незабываемая битва!' },
 ];
 
-const NAV = [['#about', 'О нас'], ['#how', 'Как это работает'], ['#reviews', 'Отзывы'], ['#contacts', 'Контакты']];
+const NAV: [string, string][] = [['#about', 'О нас'], ['#how', 'Как это работает'], ['#reviews', 'Отзывы'], ['#contacts', 'Контакты']];
 
-// Список надёжных фото пейнтбола — грузится первое доступное
 const HERO_IMAGES = [
-  'https://images.pexels.com/photos/163547/pexels-photo-163547.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  'https://images.pexels.com/photos/2102587/pexels-photo-2102587.jpeg?auto=compress&cs=tinysrgb&w=1600',
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/PaintballSzene.jpg/1280px-PaintballSzene.jpg',
+  'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=1600&q=80',
+  'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=1600&q=80',
+  '/hero-fallback.svg',
 ];
 
 function HeroBg() {
   const [idx, setIdx] = useState(0);
+  const isLast = idx === HERO_IMAGES.length - 1;
   return (
     <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
       <img
         key={idx}
         src={HERO_IMAGES[idx]}
         alt=""
-        onError={() => {
-          if (idx < HERO_IMAGES.length - 1) setIdx(i => i + 1);
-        }}
+        onError={() => { if (!isLast) setIdx(i => i + 1); }}
         style={{
           position: 'absolute', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: 'center 20%',
-          filter: 'brightness(0.22) saturate(0.5)',
+          objectFit: 'cover', objectPosition: 'center 25%',
+          filter: isLast ? 'none' : 'brightness(0.22) saturate(0.5)',
         }}
       />
     </div>
@@ -59,6 +57,8 @@ function BallsCalc() {
   const [perPlayer, setPerPlayer] = useState(200);
   const total = players * perPlayer;
   const opts = [100, 200, 300, 500];
+  const pg = 'linear-gradient(135deg,#7c3aed,#a855f7)';
+  const ps = '0 4px 16px rgba(168,85,247,0.35)';
   return (
     <div className="card p-6 space-y-6">
       <div>
@@ -67,51 +67,34 @@ function BallsCalc() {
           <span className="text-2xl font-black gradient-text">{players}</span>
         </div>
         <div className="flex items-center gap-4 rounded-xl p-4" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}>
-          <button onClick={() => setPlayers(p => Math.max(1, p - 1))}
-            style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontSize: 22, fontWeight: 'bold', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
+          <button onClick={() => setPlayers(p => Math.max(1, p - 1))} style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: 'white', fontSize: 22, fontWeight: 'bold', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
           <div className="flex-1 text-center">
             <div className="text-4xl font-black gradient-text">{players}</div>
             <div className="text-xs" style={{ color: '#4b5563' }}>человек</div>
           </div>
-          <button onClick={() => setPlayers(p => Math.min(30, p + 1))}
-            style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc', fontSize: 22, fontWeight: 'bold', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
+          <button onClick={() => setPlayers(p => Math.min(30, p + 1))} style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(168,85,247,0.15)', border: '1px solid rgba(168,85,247,0.3)', color: '#c084fc', fontSize: 22, fontWeight: 'bold', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
         </div>
       </div>
-
       <div>
         <span className="block text-sm font-semibold text-white mb-3">🎯 Шаров на каждого игрока</span>
         <div className="grid grid-cols-4 gap-2">
           {opts.map(n => (
             <button key={n} onClick={() => setPerPlayer(n)}
-              style={{
-                padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 'bold', cursor: 'pointer',
-                WebkitTapHighlightColor: 'transparent',
-                ...(perPlayer === n
-                  ? { background: 'linear-gradient(135deg,#7c3aed,#a855f7)', color: 'white', boxShadow: '0 4px 16px rgba(168,85,247,0.35)', border: 'none' }
-                  : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' })
-              }}>
+              style={{ padding: '12px 0', borderRadius: 12, fontSize: 14, fontWeight: 'bold', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', ...(perPlayer === n ? { background: pg, color: 'white', boxShadow: ps, border: 'none' } : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#94a3b8' }) }}>
               {n}
             </button>
           ))}
         </div>
       </div>
-
       <div className="rounded-2xl p-5" style={{ background: 'linear-gradient(135deg,rgba(124,58,237,0.15),rgba(168,85,247,0.08))', border: '1px solid rgba(168,85,247,0.2)' }}>
-        <div className="flex justify-between text-sm mb-2">
-          <span style={{ color: '#94a3b8' }}>Игроков:</span>
-          <span className="text-white font-semibold">{players} чел.</span>
-        </div>
-        <div className="flex justify-between text-sm mb-3">
-          <span style={{ color: '#94a3b8' }}>Шаров на каждого:</span>
-          <span className="text-white font-semibold">{perPlayer} шт.</span>
-        </div>
+        <div className="flex justify-between text-sm mb-2"><span style={{ color: '#94a3b8' }}>Игроков:</span><span className="text-white font-semibold">{players} чел.</span></div>
+        <div className="flex justify-between text-sm mb-3"><span style={{ color: '#94a3b8' }}>Шаров на каждого:</span><span className="text-white font-semibold">{perPlayer} шт.</span></div>
         <div style={{ height: 1, background: 'rgba(255,255,255,0.08)', marginBottom: 12 }} />
         <div className="flex justify-between items-center">
           <span className="font-bold text-white">Всего шаров:</span>
           <span className="text-3xl font-black gradient-text">{total.toLocaleString()}</span>
         </div>
       </div>
-
       <Link href="/booking" className="btn-primary py-4 text-base w-full block text-center">Забронировать →</Link>
     </div>
   );
@@ -144,11 +127,7 @@ export default function HomePage() {
           <button className="md:hidden p-2" onClick={() => setMenu(!menu)} style={{ WebkitTapHighlightColor: 'transparent' }}>
             <div style={{ width: 22, height: 14, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
               {[0, 1, 2].map(i => (
-                <span key={i} style={{
-                  display: 'block', height: 2, background: 'white', borderRadius: 2, transition: 'all 0.2s',
-                  opacity: menu && i === 1 ? 0 : 1,
-                  transform: menu ? (i === 0 ? 'rotate(45deg) translateY(6px)' : i === 2 ? 'rotate(-45deg) translateY(-6px)' : '') : 'none',
-                }} />
+                <span key={i} style={{ display: 'block', height: 2, background: 'white', borderRadius: 2, transition: 'all 0.2s', opacity: menu && i === 1 ? 0 : 1, transform: menu ? (i === 0 ? 'rotate(45deg) translateY(6px)' : i === 2 ? 'rotate(-45deg) translateY(-6px)' : '') : 'none' }} />
               ))}
             </div>
           </button>
@@ -165,14 +144,9 @@ export default function HomePage() {
 
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-        <div className="absolute inset-0" 
-          backgroundImage: 'url(https://images.pexels.com/photos/163547/pexels-photo-163547.jpeg?auto=compress&cs=tinysrgb&w=2000)',
-          backgroundSize: 'cover', backgroundPosition: 'center 30%',
-          filter: 'brightness(0.2) saturate(0.6)',
-        }} />
+        <HeroBg />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom,rgba(7,5,15,0.15) 0%,rgba(7,5,15,0) 30%,rgba(7,5,15,0.7) 75%,#07050f 100%)' }} />
         <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse at 50% 45%,rgba(124,58,237,0.2) 0%,transparent 65%)' }} />
-
         <div className="relative z-10 text-center px-4 w-full max-w-2xl mx-auto py-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold mb-8" style={{ background: 'rgba(168,85,247,0.12)', border: '1px solid rgba(168,85,247,0.3)', color: '#d8b4fe' }}>
             <span style={{ width: 6, height: 6, background: '#a855f7', borderRadius: '50%', display: 'inline-block' }} />
@@ -296,9 +270,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <a href="tel:+992502131415"
-            className="flex items-center justify-center gap-2 w-full text-white font-bold py-4 rounded-2xl text-base"
-            style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)', WebkitTapHighlightColor: 'transparent' }}>
+          <a href="tel:+992502131415" className="flex items-center justify-center gap-2 w-full text-white font-bold py-4 rounded-2xl text-base" style={{ background: 'linear-gradient(135deg,#16a34a,#15803d)', WebkitTapHighlightColor: 'transparent' }}>
             📞 Позвонить нам
           </a>
         </div>
