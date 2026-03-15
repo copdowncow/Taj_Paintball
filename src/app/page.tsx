@@ -26,6 +26,29 @@ const STEPS = [
 
 const NAV = [['#about', 'О нас'], ['#how', 'Как это работает'], ['#reviews', 'Отзывы'], ['#contacts', 'Контакты']];
 
+function HeroBg() {
+  return (
+    <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
+      {/* img тег с правильным обработчиком ошибок */}
+      <img
+        src="https://empirepaintball.com/wp-content/uploads/sites/3/2024/04/Empire-Paintball-EVS-and-AXE-Vision-and-Power-r-300x215.jpg"
+        alt=""
+        onError={(e) => {
+          // Если основное фото не загрузилось — используем резервное
+          const img = e.currentTarget;
+          img.onerror = null;
+          img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/PaintballSzene.jpg/1280px-PaintballSzene.jpg';
+        }}
+        style={{
+          position: 'absolute', inset: 0, width: '100%', height: '100%',
+          objectFit: 'cover', objectPosition: 'center',
+          filter: 'brightness(0.2) saturate(0.6)',
+        }}
+      />
+    </div>
+  );
+}
+
 function BallsCalc() {
   const [players, setPlayers] = useState(4);
   const [perPlayer, setPerPlayer] = useState(200);
