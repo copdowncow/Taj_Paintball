@@ -244,11 +244,11 @@ function PriceCalculator() {
         <label className="block text-sm font-semibold text-white mb-3">🎯 Шаров на каждого игрока</label>
         <div className="grid grid-cols-4 gap-2">
           {options.map(n=>(
-            <button key={n} onClick={()=>setPerPlayer(n)} style={{WebkitTapHighlightColor:'transparent'}}
+            <button key={n} onClick={()=>setPerPlayer(n)}
               className={`py-3 rounded-xl text-sm font-bold transition-all ${perPlayer===n?'text-white':'text-neutral-300'}`}
-              style={perPlayer===n
+              style={{WebkitTapHighlightColor:'transparent',...(perPlayer===n
                 ? {background:'linear-gradient(135deg,#1e40af,#3b82f6)',boxShadow:'0 4px 16px rgba(59,130,246,0.35)'}
-                : {background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)'}}>
+                : {background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)'})}}>
               {n}
             </button>
           ))}
