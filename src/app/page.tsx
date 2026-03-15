@@ -138,7 +138,7 @@ export default function HomePage() {
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
         <div className="absolute inset-0" style={{
-          backgroundImage: 'url(https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=1800&q=80&fit=crop&crop=center)',
+          backgroundImage: 'url(https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?w=1800&q=80&fit=crop&crop=center)',
           backgroundSize: 'cover', backgroundPosition: 'center 30%',
           filter: 'brightness(0.2) saturate(0.6)',
         }} />
