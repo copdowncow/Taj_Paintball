@@ -166,7 +166,7 @@ export default function HomePage() {
       {/* HERO */}
       <section className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
         <div className="absolute inset-0" 
-          backgroundImage: 'url(https://images.pexels.com/photos/163452/paintball-war-game-163452.jpeg?auto=compress&cs=tinysrgb&w=1800)',
+          backgroundImage: 'url(https://images.pexels.com/photos/163547/pexels-photo-163547.jpeg?auto=compress&cs=tinysrgb&w=2000)',
           backgroundSize: 'cover', backgroundPosition: 'center 30%',
           filter: 'brightness(0.2) saturate(0.6)',
         }} />
