@@ -22,9 +22,11 @@ async function call(method: string, body: Record<string, unknown>) {
 export async function tgSend(chatId: string | number, text: string, extra?: Record<string, unknown>) {
   return call('sendMessage', { chat_id: chatId, text, parse_mode: 'Markdown', ...extra });
 }
+
 export async function tgAnswer(id: string, text: string) {
   return call('answerCallbackQuery', { callback_query_id: id, text });
 }
+
 export async function tgEditMarkup(chatId: number, messageId: number) {
   return call('editMessageReplyMarkup', {
     chat_id: chatId, message_id: messageId,
@@ -48,7 +50,7 @@ export async function notifyNewBooking(b: Record<string, unknown>) {
     `📋 #${b.booking_number}\n` +
     `👤 ${b.customer_name}\n` +
     `📞 ${b.customer_phone}\n` +
-    `📅 ${fmtDate(b.game_date as string)} в ${String(b.game_time).substring(0,5)}\n` +
+    `📅 ${fmtDate(b.game_date as string)} в ${String(b.game_time).substring(0, 5)}\n` +
     `👥 ${b.players_count} чел. · 🎯 ${b.balls_count} шаров\n` +
     `💵 ${b.total_price} сомони\n` +
     `💰 Предоплата: ${b.prepayment_amount} сомони\n` +
@@ -73,7 +75,10 @@ export async function notifyStatusChange(b: Record<string, unknown>, status: str
     confirmed: '✅ Подтверждена', cancelled: '❌ Отменена',
     completed: '🏁 Завершена', no_show: '🚫 Не пришёл',
   };
-  await tgSend(CHAT_ID, `🔄 *#${b.booking_number}* — ${labels[status] || status}\n${b.customer_name} · ${fmtDate(b.game_date as string)}`);
+  await tgSend(CHAT_ID,
+    `🔄 *#${b.booking_number}* — ${labels[status] || status}\n` +
+    `${b.customer_name} · ${fmtDate(b.game_date as string)}`
+  );
 }
 
 export async function handleCallback(query: {
@@ -82,6 +87,7 @@ export async function handleCallback(query: {
   message?: { chat: { id: number }; message_id: number };
 }) {
   if (!query.data || !query.message) return;
+
   const { data, message } = query;
   const chatId = message.chat.id;
   const msgId = message.message_id;
@@ -103,25 +109,26 @@ export async function handleCallback(query: {
   if (!mapped) return;
 
   try {
-    let bk: Record<string, unknown> | null = null;
-
     if (mapped.prepayment) {
       const upd: Record<string, unknown> = { prepayment_status: mapped.prepayment };
       if (mapped.prepayment === 'confirmed') upd.prepayment_confirmed_at = new Date().toISOString();
       if (mapped.prepayment === 'returned') upd.prepayment_returned_at = new Date().toISOString();
-      if (mapped.autoConfirm) { upd.booking_status = 'confirmed'; upd.confirmed_at = new Date().toISOString(); }
-      const { data: u } = await supabase.from('bookings').update(upd).eq('id', bookingId).select().single();
-      bk = u;
+      if (mapped.autoConfirm) {
+        upd.booking_status = 'confirmed';
+        upd.confirmed_at = new Date().toISOString();
+      }
+      await supabase.from('bookings').update(upd).eq('id', bookingId);
     }
 
     if (mapped.status) {
       const upd: Record<string, unknown> = { booking_status: mapped.status };
       if (mapped.status === 'confirmed') upd.confirmed_at = new Date().toISOString();
       if (mapped.status === 'cancelled') upd.cancelled_at = new Date().toISOString();
-      if (['completed','no_show'].includes(mapped.status)) upd.completed_at = new Date().toISOString();
-      const { data: u } = await supabase.from('bookings').update(upd).eq('id', bookingId).select().single();
-      bk = u;
-      if (bk && ['completed','no_show'].includes(mapped.status)) {
+      if (['completed', 'no_show'].includes(mapped.status)) upd.completed_at = new Date().toISOString();
+
+      const { data: bk } = await supabase.from('bookings').update(upd).eq('id', bookingId).select().single();
+
+      if (bk && ['completed', 'no_show'].includes(mapped.status)) {
         await supabase.from('games_history').insert({
           booking_id: bk.id, booking_number: bk.booking_number,
           customer_name: bk.customer_name, customer_phone: bk.customer_phone,
@@ -135,27 +142,9 @@ export async function handleCallback(query: {
     }
 
     await supabase.from('booking_logs').insert({
-      booking_id: bookingId, event_type: action, description: mapped.label, performed_by: 'telegram_bot',
+      booking_id: bookingId, event_type: action,
+      description: mapped.label, performed_by: 'telegram_bot',
     });
-
-    // Email клиенту при действиях через Telegram
-      if (mapped.autoConfirm || mapped.status === 'confirmed') {
-          to: email,
-          booking_number: bk.booking_number as string,
-          customer_name: bk.customer_name as string,
-          game_date: bk.game_date as string,
-          game_time: bk.game_time as string,
-          players_count: bk.players_count as number,
-          total_price: bk.total_price as number,
-          prepayment_amount: bk.prepayment_amount as number,
-        }).catch(console.error);
-      } else if (mapped.status === 'cancelled') {
-          to: email,
-          booking_number: bk.booking_number as string,
-          customer_name: bk.customer_name as string,
-        }).catch(console.error);
-      }
-    }
 
     await tgAnswer(query.id, mapped.label);
     await tgEditMarkup(chatId, msgId);
@@ -175,7 +164,7 @@ export async function registerWebhook() {
   const r = await fetch(`${TG}/setWebhook`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url: webhookUrl, drop_pending_updates: true, allowed_updates: ['message','callback_query'] }),
+    body: JSON.stringify({ url: webhookUrl, drop_pending_updates: true, allowed_updates: ['message', 'callback_query'] }),
   });
   const res = await r.json() as { ok: boolean; description?: string };
   console.log(res.ok ? `🤖 Telegram webhook: ${webhookUrl}` : `⚠️  Webhook error: ${res.description}`);
