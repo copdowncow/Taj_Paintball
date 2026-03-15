@@ -26,23 +26,28 @@ const STEPS = [
 
 const NAV = [['#about', 'О нас'], ['#how', 'Как это работает'], ['#reviews', 'Отзывы'], ['#contacts', 'Контакты']];
 
+// Список надёжных фото пейнтбола — грузится первое доступное
+const HERO_IMAGES = [
+  'https://images.pexels.com/photos/163547/pexels-photo-163547.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  'https://images.pexels.com/photos/2102587/pexels-photo-2102587.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/PaintballSzene.jpg/1280px-PaintballSzene.jpg',
+];
+
 function HeroBg() {
+  const [idx, setIdx] = useState(0);
   return (
     <div className="absolute inset-0" style={{ overflow: 'hidden' }}>
-      {/* img тег с правильным обработчиком ошибок */}
       <img
-        src="https://empirepaintball.com/wp-content/uploads/sites/3/2024/04/Empire-Paintball-EVS-and-AXE-Vision-and-Power-r-300x215.jpg"
+        key={idx}
+        src={HERO_IMAGES[idx]}
         alt=""
-        onError={(e) => {
-          // Если основное фото не загрузилось — используем резервное
-          const img = e.currentTarget;
-          img.onerror = null;
-          img.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/PaintballSzene.jpg/1280px-PaintballSzene.jpg';
+        onError={() => {
+          if (idx < HERO_IMAGES.length - 1) setIdx(i => i + 1);
         }}
         style={{
           position: 'absolute', inset: 0, width: '100%', height: '100%',
-          objectFit: 'cover', objectPosition: 'center',
-          filter: 'brightness(0.2) saturate(0.6)',
+          objectFit: 'cover', objectPosition: 'center 20%',
+          filter: 'brightness(0.22) saturate(0.5)',
         }}
       />
     </div>
