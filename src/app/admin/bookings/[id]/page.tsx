@@ -138,7 +138,7 @@ export default function BookingDetailPage() {
           <div className="p-4" style={{borderBottom:'1px solid rgba(255,255,255,0.06)'}}>
             <h2 className="text-white font-bold text-sm">История изменений</h2>
           </div>
-          <div style={{divideColor:'rgba(255,255,255,0.04)'}}>
+          <div>
             {booking.logs.map(log=>(
               <div key={log.id} className="p-4 text-sm" style={{borderBottom:'1px solid rgba(255,255,255,0.04)'}}>
                 <div className="flex justify-between items-start mb-1">
